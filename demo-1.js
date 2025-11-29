@@ -30,7 +30,7 @@ async function clockTime(clockIn, clockOut){
     // 循环每一个时间段并算出差值，最后算出所有差值的和
     let totalMs = 0;
     
-    for(let i = 0; i < startTimeArr.length; i++){
+    for(let i = 0; i < (startTimeArr.length > endTimeArr.length? endTimeArr.length: startTimeArr.length); i++){
         // let diffMs =  moment(endTimeArr[i], "HH:mm:ss") - moment(startTimeArr[i], "HH:mm:ss");
         const diffMs = moment(endTimeArr[i].trim(), "HH:mm:ss").diff(moment(startTimeArr[i].trim(), "HH:mm:ss"));
         if(!isNaN(diffMs)) totalMs += diffMs;
