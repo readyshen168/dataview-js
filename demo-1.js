@@ -2,22 +2,12 @@
 const page = dv.current();
 // clock数组，所有记录的时间项目放在一个数组中
 var clocks = [
-    { 
-        name: "ob",
-        totalminutes: 0,
-    }, 
-    {
-        name: "bskr1",
-        totalminutes:0,
-    },
-    {
-        name: "ai",
-        totalminutes:0,
-    },
-    {
-        name: "linux",
-        totalminutes:0,
-    },
+    { name: "ob", totalminutes: 0, description: "obsidian的相关工作："}, 
+    { name: "bskr1", totalminutes:0, description: "商业探索：" },
+    { name: "ai", totalminutes:0, description: "ai探索：" },
+    { name: "linux", totalminutes:0, description: "linux学习："  },
+    { name: "shell", totalminutes:0, description: "shell学习：" },
+    { name: "c", totalminutes:0, description: "c语言学习：" },
 ];
 // 根据clock项目在页面的起止属性名，计算时间和的方法, 即更新clock项目的totalminutes
 async function clockTime(clockIn, clockOut){
@@ -65,13 +55,17 @@ async function modifyPage(clocks, callback){
         const durationRegex = new RegExp(`^\s*${escapedName}::\s*.+$`,'m');
         // gpt-5 mini 建议的修改：const durationRegex = new RegExp('^\\s*' + escapedName + '::\\s*.+$','m');
 
+        // 打印该clock项目的描述：
+        content += `\n${clock.description}`;
+
         if (durationRegex.test(content)) {
             // 如果时间和的属性存在，则替换其值为0
-            content = content.replace(durationRegex, `${durationName}:: 0`);
+            content = content.replace(durationRegex, `\n${durationName}:: 0`);
         } else {
             // 如果不存在，则在文件末尾添加该字段, 其值为0（初始值）
             content += `\n${durationName}:: 0`;
         }
+        
 
         // 获取clock项目在页面的起始和终止的属性名
         let clockIn = clock.name + "_clock_in";
