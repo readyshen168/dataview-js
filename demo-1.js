@@ -66,7 +66,7 @@ async function modifyPage(clocks, callback){
 
     // 向页面写入clock项目的初始值0
 
-        // 删除旧的时间属性格式：
+        // 删除旧的时间属性格式(旧版本的代码可能遗留下旧的属性格式)：
         if(durationRegex.test(content) && !durationDescriptionRegex.test(content) ){
             content = content.replace(durationRegex, '');
         }
@@ -91,7 +91,7 @@ async function modifyPage(clocks, callback){
     // 向页面中写入该clock项目的时间和，xx_duration: clock.stotalminutes
             if (durationDescriptionRegex.test(content)){
                     // 如果存在，则替换其值
-                    content = content.replace(durationDescriptionRegex, `${durationDescription}::${clock.totalminutes}\n`);
+                    content = content.replace(durationDescriptionRegex, `${durationDescription}:: ${clock.totalminutes}\n`);
                 } else {
                     // 如果不存在，则在文件末尾添加该字段, 逻辑上不会执行到这里, 因为所有的时间和属性值都已经初始化
                     content += `\n${durationDescription}:: ${clock.totalminutes}`;
