@@ -8,6 +8,8 @@ var clocks = [
     { name: "linux", totalminutes:0, description: "linux学习："  },
     { name: "shell", totalminutes:0, description: "shell学习：" },
     { name: "c", totalminutes:0, description: "c语言学习：" },
+    { name: "ts", totalminutes:0, description: "typescript语言学习：" },
+
 ];
 // 根据clock项目在页面的起止属性名，计算时间和的方法, 即更新clock项目的totalminutes
 async function clockTime(clockIn, clockOut){
@@ -48,22 +50,33 @@ async function modifyPage(clocks, callback){
         let clock = clocks[i];
         // 该clock时间和的属性名
         let durationName = clock.name + "_totalDuration";
-    // 向页面写入clock项目的初始值0
+        // 该clock的描述
+        let description = clock.description;
+        // clockxi项目描述+时间和
+        let durationDescription = `${description}\n${durationName}`; 
         // 使用正则表达式查找是否已存在 durationName 字段 ^test
         // 使用 RegExp 构造函数动态创建正则表达式，并转义特殊字符
-        const escapedName = durationName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const durationRegex = new RegExp(`^\s*${escapedName}::\s*.+$`,'m');
+        const escapedDuration= durationName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const durationRegex = new RegExp(`^\s*${escapedDuration}::\s*.+$`,'m');
+        // 使用正则表达式查找是否已存在描述字段
+        // 使用 RegExp 构造函数动态创建正则表达式，并转义特殊字符
+        const escapedDescription = description.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const durationDescriptionRegex = new RegExp(`^\s*${escapedDescription}\n${escapedDuration}::\s*.+$`,'m');
         // gpt-5 mini 建议的修改：const durationRegex = new RegExp('^\\s*' + escapedName + '::\\s*.+$','m');
 
-        // 打印该clock项目的描述：
-        content += `\n${clock.description}`;
+    // 向页面写入clock项目的初始值0
 
-        if (durationRegex.test(content)) {
-            // 如果时间和的属性存在，则替换其值为0
-            content = content.replace(durationRegex, `\n${durationName}:: 0`);
+        // 删除旧的时间属性格式：
+        if(durationRegex.test(content) && !durationDescriptionRegex.test(content) ){
+            content = content.replace(durationRegex, '');
+        }
+
+        // clock项目描述和时间属性的初始化：
+        if (durationDescriptionRegex.test(content)) {
+            content = content.replace(durationDescriptionRegex, `${durationDescription}:: 0\n`);
         } else {
             // 如果不存在，则在文件末尾添加该字段, 其值为0（初始值）
-            content += `\n${durationName}:: 0`;
+            content += `\n${durationDescription}:: 0`;
         }
         
 
@@ -76,12 +89,12 @@ async function modifyPage(clocks, callback){
             // 等待callback函数返回数值
             clock.totalminutes = await callback(clockIn, clockOut);
     // 向页面中写入该clock项目的时间和，xx_duration: clock.stotalminutes
-            if (durationRegex.test(content)){
+            if (durationDescriptionRegex.test(content)){
                     // 如果存在，则替换其值
-                    content = content.replace(durationRegex, `${durationName}:: ${clock.totalminutes}`);
+                    content = content.replace(durationDescriptionRegex, `${durationDescription}::${clock.totalminutes}\n`);
                 } else {
                     // 如果不存在，则在文件末尾添加该字段, 逻辑上不会执行到这里, 因为所有的时间和属性值都已经初始化
-                    content += `\n${durationName}:: ${clock.totalminutes}`;
+                    content += `\n${durationDescription}:: ${clock.totalminutes}`;
                 }
     // 如果该clock项目的起止时间属性有问题，则把这个消息写入页面内容
         }else if(!page[clockIn] && !page[clockOut]){
